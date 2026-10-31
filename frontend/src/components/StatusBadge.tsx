@@ -1,0 +1,166 @@
+const BASE = 'px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap';
+
+const STATUS: Record<string, string> = {
+  active: 'bg-green-100 text-green-800',
+  completed: 'bg-gray-100 text-gray-600',
+  discontinued: 'bg-red-100 text-red-800',
+  'on-hold': 'bg-amber-100 text-amber-800',
+  resolved: 'bg-teal-100 text-teal-700',
+  inactive: 'bg-gray-100 text-gray-600',
+  pending: 'bg-amber-100 text-amber-900',
+  in_progress: 'bg-teal-100 text-teal-700',
+  open: 'bg-blue-100 text-blue-800',
+  awaiting_signature: 'bg-amber-100 text-amber-800',
+  signed: 'bg-green-100 text-green-800',
+  amended: 'bg-violet-100 text-violet-800',
+  draft: 'bg-gray-100 text-gray-600',
+  ordered: 'bg-blue-100 text-blue-800',
+  sent: 'bg-blue-100 text-blue-800',
+  accepted: 'bg-teal-100 text-teal-800',
+  scheduled: 'bg-violet-100 text-violet-800',
+  closed: 'bg-slate-100 text-slate-700',
+  collected: 'bg-sky-100 text-sky-800',
+  resulted: 'bg-teal-100 text-teal-800',
+  cancelled: 'bg-red-100 text-red-800',
+  routine: 'bg-gray-100 text-gray-700',
+  urgent: 'bg-amber-100 text-amber-800',
+  stat: 'bg-red-100 text-red-800',
+  preliminary: 'bg-amber-100 text-amber-800',
+  corrected: 'bg-violet-100 text-violet-800',
+  laboratory: 'bg-sky-100 text-sky-800',
+  diagnostic_imaging: 'bg-violet-100 text-violet-800',
+  procedure: 'bg-teal-100 text-teal-800',
+  specialist: 'bg-violet-100 text-violet-800',
+  allied_health: 'bg-sky-100 text-sky-800',
+  community_service: 'bg-teal-100 text-teal-800',
+  referral_letter: 'bg-blue-100 text-blue-800',
+  consultation_note: 'bg-teal-100 text-teal-800',
+  external_report: 'bg-amber-100 text-amber-800',
+  proposed: 'bg-blue-100 text-blue-800',
+  achieved: 'bg-green-100 text-green-800',
+  planned: 'bg-blue-100 text-blue-800',
+  not_started: 'bg-gray-100 text-gray-600',
+  on_hold: 'bg-amber-100 text-amber-800',
+  mild: 'bg-green-100 text-green-800',
+  moderate: 'bg-amber-100 text-amber-900',
+  severe: 'bg-red-100 text-red-900',
+  unknown: 'bg-gray-100 text-gray-600',
+  working: 'bg-amber-100 text-amber-800',
+  final: 'bg-green-100 text-green-800',
+  encounter: 'bg-blue-100 text-blue-800',
+  create: 'bg-green-100 text-green-800',
+  update: 'bg-amber-100 text-amber-900',
+  delete: 'bg-red-100 text-red-800',
+  booked: 'bg-blue-100 text-blue-800',
+  confirmed: 'bg-teal-100 text-teal-800',
+  arrived: 'bg-green-100 text-green-800',
+  waiting: 'bg-sky-100 text-sky-800',
+  roomed: 'bg-violet-100 text-violet-800',
+  no_show: 'bg-amber-100 text-amber-800',
+  due: 'bg-amber-100 text-amber-800',
+  overdue: 'bg-red-100 text-red-900',
+  hypertension: 'bg-rose-100 text-rose-800',
+  diabetes: 'bg-violet-100 text-violet-800',
+  copd: 'bg-sky-100 text-sky-800',
+  heart_failure: 'bg-rose-100 text-rose-800',
+  ckd: 'bg-teal-100 text-teal-800',
+  custom: 'bg-gray-100 text-gray-700',
+  abnormal: 'bg-rose-100 text-rose-800',
+};
+
+const LABELS: Record<string, string> = {
+  booked: 'Booked',
+  confirmed: 'Confirmed',
+  arrived: 'Arrived',
+  waiting: 'Waiting',
+  roomed: 'Roomed',
+  in_progress: 'In Progress',
+  open: 'Open',
+  awaiting_signature: 'Awaiting Signature',
+  signed: 'Signed',
+  amended: 'Amended',
+  completed: 'Completed',
+  no_show: 'No Show',
+  due: 'Due',
+  overdue: 'Overdue',
+  hypertension: 'Hypertension',
+  diabetes: 'Diabetes',
+  copd: 'COPD',
+  heart_failure: 'Heart Failure',
+  ckd: 'CKD',
+  custom: 'Custom',
+  abnormal: 'Abnormal',
+  draft: 'Draft',
+  ordered: 'Ordered',
+  sent: 'Sent',
+  accepted: 'Accepted',
+  scheduled: 'Scheduled',
+  closed: 'Closed',
+  collected: 'Collected',
+  resulted: 'Resulted',
+  cancelled: 'Cancelled',
+  routine: 'Routine',
+  urgent: 'Urgent',
+  stat: 'Stat',
+  preliminary: 'Preliminary',
+  corrected: 'Corrected',
+  laboratory: 'Laboratory',
+  diagnostic_imaging: 'Diagnostic Imaging',
+  procedure: 'Procedure',
+  specialist: 'Specialist',
+  allied_health: 'Allied Health',
+  community_service: 'Community Service',
+  referral_letter: 'Referral Letter',
+  consultation_note: 'Consultation Note',
+  external_report: 'External Report',
+  active: 'Active',
+  'on-hold': 'On Hold',
+  on_hold: 'On Hold',
+  achieved: 'Achieved',
+  planned: 'Planned',
+  not_started: 'Not Started',
+  discontinued: 'Discontinued',
+  inactive: 'Inactive',
+  resolved: 'Resolved',
+  mild: 'Mild',
+  moderate: 'Moderate',
+  severe: 'Severe',
+  unknown: 'Unknown',
+  working: 'Working',
+  final: 'Final',
+  encounter: 'Encounter',
+};
+
+const ALERT_STATUS = new Set(['severe', 'overdue', 'urgent', 'stat', 'abnormal', 'no_show']);
+
+function AlertMark() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      aria-hidden
+      className="mr-1 inline h-3 w-3 shrink-0"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+    >
+      <path d="M8 1.8 14.5 14H1.5L8 1.8z" strokeLinejoin="round" />
+      <path d="M8 6.2v3.4" strokeLinecap="round" />
+      <path d="M8 11.6h.01" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function statusLabel(value?: string | null) {
+  if (!value) return '';
+  return LABELS[value] ?? value.replace(/_/g, ' ');
+}
+
+export function StatusBadge({ value }: { value?: string | null }) {
+  if (!value) return <span className="text-gray-600">—</span>;
+  return (
+    <span className={`${BASE} inline-flex items-center ${STATUS[value] ?? 'bg-gray-100 text-gray-700'}`}>
+      {ALERT_STATUS.has(value) ? <AlertMark /> : null}
+      {statusLabel(value)}
+    </span>
+  );
+}

@@ -1,0 +1,24 @@
+{
+  "name": "clinix-core",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c teal,cyan \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "db:seed": "npm run seed --workspace=backend",
+    "seed": "npm run db:seed",
+    "load-portfolio": "npm run load-portfolio --workspace=backend",
+    "migrate:canadian": "npm run migrate:canadian --workspace=backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

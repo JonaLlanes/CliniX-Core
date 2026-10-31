@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply text-gray-800 antialiased;
+}
+
+@keyframes onboard-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.onboard-card {
+  animation: onboard-in 0.28s ease-out;
+}
+
+@keyframes tour-pulse {
+  0% {
+    box-shadow: 0 0 0 2px #0d9488, 0 0 0 2px rgba(13, 148, 136, 0.35);
+  }
+  100% {
+    box-shadow: 0 0 0 2px #0d9488, 0 0 0 12px rgba(13, 148, 136, 0);
+  }
+}
+
+.tour-ring {
+  animation: tour-pulse 1.6s ease-out infinite;
+}
+
+.chart-nav {
+  scrollbar-width: thin;
+}
+
+.chart-nav::-webkit-scrollbar {
+  height: 6px;
+}
+
+@keyframes command-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.command-panel {
+  animation: command-in 0.16s ease-out;
+}
+
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  z-index: 100;
+  transform: translateY(-150%);
+  border-radius: 0.75rem;
+  background: #0f766e;
+  color: #fff;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role='tab']:focus-visible,
+[role='menuitem']:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #0f766e;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboard-card,
+  .tour-ring,
+  .command-panel,
+  .animate-spin,
+  .animate-pulse {
+    animation: none !important;
+  }
+
+  .tour-ring {
+    box-shadow: 0 0 0 2px #0d9488;
+  }
+}

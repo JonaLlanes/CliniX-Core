@@ -1,4 +1,12 @@
-const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+/** Hosted split deploys set VITE_API_URL to the API origin, the same way CliniX Insight does. */
+export function apiBase() {
+  const configured = import.meta.env.VITE_API_URL?.trim().replace(/\/$/, '');
+  if (!configured) return '/api/v1';
+  if (configured.endsWith('/api/v1')) return configured;
+  return `${configured}/api/v1`;
+}
+
+const API_BASE = apiBase();
 
 export type Role =
   | 'clinician'
@@ -87,6 +95,12 @@ export async function api<T>(
     try {
       data = JSON.parse(text) as ApiPayload;
     } catch {
+      if (text.trimStart().startsWith('<')) {
+        throw new ApiError(
+          'API not reachable from this site. Set VITE_API_URL to your Render URL (for example https://clinix-core.onrender.com) and redeploy the frontend.',
+          res.status
+        );
+      }
       throw new ApiError('The clinic service returned a response the app could not read.', res.status);
     }
   }

@@ -1,6 +1,6 @@
-import { api } from './client';
+import { api, apiBase } from './client';
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+const API_BASE = apiBase();
 
 export interface ReportRange {
   preset: 'today' | 'last_7_days' | 'current_month' | 'custom';
@@ -105,7 +105,13 @@ export async function downloadReport(kind: string, qs: string) {
   const res = await fetch(`${API_BASE}/reports/export/${kind}?${qs}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
-  if (!res.ok) {
+  const type = res.headers.get('content-type') || '';
+  if (!res.ok || type.includes('text/html')) {
+    if (type.includes('text/html')) {
+      throw new Error(
+        'API not reachable from this site. Set VITE_API_URL to your Render URL and redeploy the frontend.'
+      );
+    }
     let message = 'Export failed';
     try {
       const body = await res.json();

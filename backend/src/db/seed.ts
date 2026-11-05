@@ -14,13 +14,35 @@ import { config } from '../config/env.js';
 import { buildAudits } from './seed/audit.js';
 import { assertWorld } from './seed/check.js';
 import { buildChart } from './seed/chart.js';
-import { clearCollections, persistWorld } from './seed/persist.js';
+import { clearCollections, demoSeedIsComplete, persistWorld } from './seed/persist.js';
 import { buildSchedule } from './seed/schedule.js';
 import { createWorld } from './seed/world.js';
 
 const dry = process.argv.includes('--dry');
+const hostedDemo = process.env.SEED_DEMO_DATA === 'true';
 
 async function seed() {
+  if (!dry && hostedDemo && process.env.SEED_FORCE !== 'true') {
+    await connectDb();
+    const alreadySeeded = await demoSeedIsComplete();
+    // A database copied with db:push has the full panel and no seed marker.
+    const patients = await mongoose.connection.collection('patients').countDocuments();
+    const vitals = await mongoose.connection.collection('vitals').countDocuments();
+    const panelPresent = patients >= 500 && vitals >= 15000;
+    if (!alreadySeeded && panelPresent) {
+      await mongoose.connection.collection('seedmeta').updateOne(
+        { _id: 'demo' },
+        { $set: { complete: true, finishedAt: new Date(), source: 'existing' } },
+        { upsert: true }
+      );
+    }
+    await disconnectDb();
+    if (alreadySeeded || panelPresent) {
+      console.log('Demo data already present. Skipping seed. Set SEED_FORCE=true to replace it.');
+      return;
+    }
+  }
+
   console.log('Building the Ontario clinic panel...');
   const world = await createWorld();
   const board = new Intl.DateTimeFormat('en-CA', {
@@ -36,7 +58,13 @@ async function seed() {
   buildAudits(world);
   assertWorld(world);
 
-  console.log(dry ? 'Checking documents against the Mongoose models...' : 'Checking documents before replacing local data...');
+  console.log(
+    dry
+      ? 'Checking documents against the Mongoose models...'
+      : hostedDemo
+        ? 'Checking documents before replacing the hosted demo...'
+        : 'Checking documents before replacing local data...'
+  );
   await persistWorld(world, false);
   if (dry) {
     console.log('Dry run passed. Nothing was written to MongoDB.');
@@ -44,8 +72,10 @@ async function seed() {
   }
 
   const host = new URL(config.mongoUri.replace(/^mongodb(\+srv)?:\/\//, 'http://')).hostname;
-  if (host !== 'localhost' && host !== '127.0.0.1') {
-    throw new Error(`Refusing to replace data on ${host}. The seed only runs against local MongoDB.`);
+  if (!hostedDemo && host !== 'localhost' && host !== '127.0.0.1') {
+    throw new Error(
+      `Refusing to replace data on ${host}. Local seed only runs against localhost. Hosted deploys set SEED_DEMO_DATA=true.`
+    );
   }
 
   await mongoose.connect(config.mongoUri, { autoIndex: false });

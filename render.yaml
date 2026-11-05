@@ -1,6 +1,5 @@
-# Render blueprint. One service serves the API and the built clinic UI.
-# Create a free MongoDB Atlas cluster first, seed locally, then npm run db:push.
-# https://render.com/docs/blueprint-spec
+# Render blueprint — one-click deploy: https://render.com/docs/blueprint-spec
+# Before deploying: create a free MongoDB Atlas cluster and paste MONGODB_URI in the Render dashboard.
 
 services:
   - type: web
@@ -11,11 +10,17 @@ services:
     startCommand: npm start
     healthCheckPath: /api/v1/health
     envVars:
+      - key: NODE_VERSION
+        value: "22"
       - key: NODE_ENV
         value: production
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 7d
+      - key: SEED_DEMO_DATA
+        value: "true"
       - key: MONGODB_URI
+        sync: false
+      - key: FRONTEND_URL
         sync: false

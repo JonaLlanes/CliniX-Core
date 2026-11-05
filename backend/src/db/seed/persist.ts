@@ -1,4 +1,4 @@
-import type { Model } from 'mongoose';
+import mongoose, { type Model } from 'mongoose';
 import {
   Allergy,
   Appointment,
@@ -79,7 +79,14 @@ export async function clearCollections() {
     MonitoringProgram.deleteMany({}),
     MonitoringMetric.deleteMany({}),
     Recall.deleteMany({}),
+    mongoose.connection.collection('seedmeta').deleteMany({}),
   ]);
+}
+
+/** Written only after every collection has been inserted. A partial seed does not set this. */
+export async function demoSeedIsComplete() {
+  const marker = await mongoose.connection.collection('seedmeta').findOne({ _id: 'demo' });
+  return marker?.complete === true;
 }
 
 export async function persistWorld(world: World, write = true) {
@@ -449,4 +456,12 @@ export async function persistWorld(world: World, write = true) {
     ),
     'audit events'
   );
+
+  if (writeDocuments) {
+    await mongoose.connection.collection('seedmeta').updateOne(
+      { _id: 'demo' },
+      { $set: { complete: true, finishedAt: new Date() } },
+      { upsert: true }
+    );
+  }
 }

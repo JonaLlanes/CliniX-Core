@@ -1,0 +1,26 @@
+# Netlify hosts the React frontend only. The Express API must run on Render
+# (or similar). Set VITE_API_URL in the Netlify UI to your API base URL, e.g.
+# https://clinix-core.onrender.com  (no trailing slash, no /api suffix).
+#
+# After changing VITE_API_URL you MUST trigger a new deploy (it is baked in at build time).
+
+[build]
+  command = "npm install && npm run build --workspace=frontend"
+  publish = "frontend/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Prevent SPA fallback from swallowing /api/* with a fake 200 HTML response.
+# Real API calls must go to Render via VITE_API_URL.
+[[redirects]]
+  from = "/api/*"
+  to = "/index.html"
+  status = 404
+  force = true
+
+# SPA client-side routing (fixes /login 404 on refresh or deep link)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

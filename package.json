@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=18"
+    "node": "22.x"
   },
   "workspaces": [
     "backend",
@@ -19,7 +19,7 @@
     "load-portfolio": "npm run load-portfolio --workspace=backend",
     "migrate:canadian": "npm run migrate:canadian --workspace=backend",
     "build": "npm run build --workspace=frontend && npm run build --workspace=backend",
-    "start": "npm run start --workspace=backend"
+    "start": "node scripts/production-start.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

@@ -1,10 +1,17 @@
 services:
   mongo:
     image: mongo:7
+    container_name: clinix-core-mongo
+    restart: unless-stopped
     ports:
-      - '27017:27017'
+      - "27017:27017"
     volumes:
-      - clinix_mongo_data:/data/db
+      - clinix_core_mongodata:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
-  clinix_mongo_data:
+  clinix_core_mongodata:

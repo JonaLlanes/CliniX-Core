@@ -1,6 +1,13 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
-dotenv.config();
+const backendRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const repoRoot = path.resolve(backendRoot, '..');
+// backend/.env is the existing local file and wins when both exist.
+// A root .env (the CliniX Insight layout) fills any key that file does not set.
+dotenv.config({ path: path.join(backendRoot, '.env') });
+dotenv.config({ path: path.join(repoRoot, '.env') });
 
 const DEV_JWT_SECRETS = new Set(['clinix-core-dev-secret', 'clinix-core-dev-secret-change-me']);
 

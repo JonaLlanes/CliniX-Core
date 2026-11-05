@@ -11,7 +11,7 @@ The clinic day is `America/Toronto`. Demo sites are Toronto Main, North York, Mi
 ![Healthcare](https://img.shields.io/badge/Healthcare-0F766E?style=flat-square)
 ![EHR](https://img.shields.io/badge/EHR-1E3A5F?style=flat-square)
 
-**Quick links:** [Overview](#executive-summary) · [Architecture](#architecture-at-a-glance) · [Features](#features) · [API](#api-overview) · [Installation](#installation) · [Hosted demo](#hosted-demo)
+**Quick links:** [Overview](#executive-summary) · [Architecture](#architecture-at-a-glance) · [Features](#features) · [API](#api-overview) · [Installation](#installation) · [Deploy online](#deploy-online)
 
 ---
 
@@ -168,11 +168,11 @@ Reports cover operations, clinical workload, and chronic-disease cohorts. Caregi
 | Layer | Choice |
 | --- | --- |
 | Frontend | React 19, TypeScript, Vite, React Router, Tailwind CSS |
-| Backend | Node.js 18+, Express, TypeScript, Zod, JSON Web Tokens, Helmet, CORS, express-rate-limit |
+| Backend | Node.js 22, Express, TypeScript, Zod, JSON Web Tokens, Helmet, CORS, express-rate-limit |
 | Database | MongoDB and Mongoose. Default database `clinix_core` on `mongodb://127.0.0.1:27017` |
 | Validation | Zod on write bodies. Clinical rules in the service layer return `400` or `409`. This repository has no automated test suite. |
 | Runtime | API on port `5000`. UI dev server on port `5173`, proxying `/api`. A hosted demo serves both from one process. |
-| Production build | `npm run build` then `npm start` in `backend`. `npm run build` in `frontend`. |
+| Production build | From the repo root: `npm run build`, then `npm start`. One process serves the API and the built UI. |
 
 Collections include `createdAt` and `updatedAt` unless [docs/data-model.md](docs/data-model.md) says otherwise. [docs/fhir-mapping.md](docs/fhir-mapping.md) maps the model toward FHIR R4. Core remains a MongoDB application with its own API.
 
@@ -409,7 +409,7 @@ The root `package.json` is an npm workspace with `backend` and `frontend`. Work 
 
 ### 1. Prerequisites
 
-- Node.js 18 or newer
+- Node.js 22
 - MongoDB listening on `mongodb://127.0.0.1:27017`
 
 ### 2. Install
@@ -421,14 +421,16 @@ npm install
 ### 3. Configure
 
 ```bash
-cp backend/.env.example backend/.env
+cp .env.example .env
 ```
 
 On Windows PowerShell:
 
 ```powershell
-Copy-Item backend/.env.example backend/.env
+Copy-Item .env.example .env
 ```
+
+This is the same root `.env` layout as CliniX Insight. A `backend/.env` already on disk still wins; the root file fills any key it leaves unset.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
@@ -477,23 +479,28 @@ npm run dev
 | `npm run db:push` | Copy the local seed to Atlas. Set `TARGET_MONGODB_URI` first |
 | `npm run migrate:canadian` | Add Canadian registration fields and indexes |
 | `npm run load-portfolio` | Replace local data with the Power BI export |
+| `npm run build` | Vite bundle, then the TypeScript API |
+| `npm start` | Production: optional demo seed, then the API (also serves the built UI) |
 
-Production API, from `backend`:
+Production, from the repository root:
 
 ```bash
 npm run build
 npm start
 ```
 
-Production UI, from `frontend`: `npm run build`, then `npm run preview` to serve that bundle.
-
 A practical smoke check, after seed and sign-in, is `GET /api/v1/health`. Validation, status transitions, and overlap checks live in `backend/src/validators` and `backend/src/services`. Automated unit and integration tests are not in this repository.
 
-## Hosted demo
+## Deploy online
 
-A portfolio deploy is one [Render](https://render.com) service plus [MongoDB Atlas](https://www.mongodb.com/cloud/atlas). Seed on this machine, copy that database with `npm run db:push`, then deploy from `render.yaml`. The public site serves the built UI and `/api/v1` together.
+GitHub stores code only — it does not run MongoDB or the app. To go live, use the same steps as CliniX Insight:
 
-The steps are in [docs/deployment.md](docs/deployment.md). Sign in as `doctor@clinix.local` / `Doctor123!` and open Ava Nguyen (MRN-1001). The waiting room matches the day you last seeded. Charts do not.
+1. Create a free **[MongoDB Atlas](https://www.mongodb.com/cloud/atlas)** cluster and copy the connection string. The database name is `clinix_core`.
+2. Push this repo to GitHub.
+3. Deploy on **[Render](https://render.com)** using the included `render.yaml`, or set **Build** `npm install --include=dev && npm run build` and **Start** `npm start`.
+4. Set `MONGODB_URI` and `JWT_SECRET` in the host's environment panel. `SEED_DEMO_DATA=true` loads the clinic demo on first boot when that database is empty.
+
+One Render service serves both the API and the React UI. A split layout (Vercel or Netlify for the UI, Render for the API) is in **[docs/deployment.md](docs/deployment.md)**. Sign in as `doctor@clinix.local` / `Doctor123!` and open Ava Nguyen (MRN-1001). The waiting room matches the day the database was seeded. Charts do not.
 
 ---
 
@@ -549,7 +556,10 @@ CliniX Core/
 │       ├── context/       # auth
 │       └── pages/         # patients, schedule, check-in, reports
 ├── docs/
-├── scripts/               # wrapper for the Canadian registration migration
+├── scripts/               # production start, Canadian registration migration
+├── render.yaml            # Render blueprint (one service, same as Insight)
+├── netlify.toml           # optional split frontend on Netlify
+├── .env.example
 ├── README.md
 └── package.json
 ```
@@ -621,7 +631,7 @@ Insight needs the chart and must leave edits in one place. It logs in as `insigh
 - Automated tests around validation, status transitions, and API access
 - Webhooks or a change stream so Insight can follow chart updates
 - A FHIR R4 export bundle
-- A scheduled refresh so the hosted waiting room stays on the current clinic day without a manual re-seed
+- A scheduled refresh so the hosted waiting room stays on the current clinic day. `SEED_FORCE=true` reloads the demo on the next boot
 
 ---
 
@@ -637,7 +647,7 @@ Insight needs the chart and must leave edits in one place. It logs in as `insigh
 
 ## Documentation
 
-- [Hosted demo](docs/deployment.md)
+- [Deployment](docs/deployment.md)
 - [Data model](docs/data-model.md)
 - [API](docs/api.md)
 - [RBAC](docs/rbac.md)

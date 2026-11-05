@@ -120,7 +120,7 @@ Then **trigger a new deploy** (Vite bakes this in at build time). On Render, set
 
 ```
 scripts/production-start.mjs
-  → backend dist/db/seed.js   (only if SEED_DEMO_DATA=true and the demo is not already loaded)
+  → tsx backend/src/db/seed.ts   (only if SEED_DEMO_DATA=true and the demo is not already loaded)
   → backend dist/index.js     (Express on PORT, serves frontend/dist)
 ```
 

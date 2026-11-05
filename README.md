@@ -11,7 +11,7 @@ The clinic day is `America/Toronto`. Demo sites are Toronto Main, North York, Mi
 ![Healthcare](https://img.shields.io/badge/Healthcare-0F766E?style=flat-square)
 ![EHR](https://img.shields.io/badge/EHR-1E3A5F?style=flat-square)
 
-**Quick links:** [Overview](#executive-summary) · [Architecture](#architecture-at-a-glance) · [Features](#features) · [API](#api-overview) · [Installation](#installation)
+**Quick links:** [Overview](#executive-summary) · [Architecture](#architecture-at-a-glance) · [Features](#features) · [API](#api-overview) · [Installation](#installation) · [Hosted demo](#hosted-demo)
 
 ---
 
@@ -171,7 +171,7 @@ Reports cover operations, clinical workload, and chronic-disease cohorts. Caregi
 | Backend | Node.js 18+, Express, TypeScript, Zod, JSON Web Tokens, Helmet, CORS, express-rate-limit |
 | Database | MongoDB and Mongoose. Default database `clinix_core` on `mongodb://127.0.0.1:27017` |
 | Validation | Zod on write bodies. Clinical rules in the service layer return `400` or `409`. This repository has no automated test suite. |
-| Runtime | API on port `5000`. UI dev server on port `5173`, proxying `/api`. Local only. |
+| Runtime | API on port `5000`. UI dev server on port `5173`, proxying `/api`. A hosted demo serves both from one process. |
 | Production build | `npm run build` then `npm start` in `backend`. `npm run build` in `frontend`. |
 
 Collections include `createdAt` and `updatedAt` unless [docs/data-model.md](docs/data-model.md) says otherwise. [docs/fhir-mapping.md](docs/fhir-mapping.md) maps the model toward FHIR R4. Core remains a MongoDB application with its own API.
@@ -474,6 +474,7 @@ npm run dev
 | `npm run dev:backend` | API only |
 | `npm run dev:frontend` | UI only |
 | `npm run seed` | Clear and reload the portfolio dataset |
+| `npm run db:push` | Copy the local seed to Atlas. Set `TARGET_MONGODB_URI` first |
 | `npm run migrate:canadian` | Add Canadian registration fields and indexes |
 | `npm run load-portfolio` | Replace local data with the Power BI export |
 
@@ -487,6 +488,12 @@ npm start
 Production UI, from `frontend`: `npm run build`, then `npm run preview` to serve that bundle.
 
 A practical smoke check, after seed and sign-in, is `GET /api/v1/health`. Validation, status transitions, and overlap checks live in `backend/src/validators` and `backend/src/services`. Automated unit and integration tests are not in this repository.
+
+## Hosted demo
+
+A portfolio deploy is one [Render](https://render.com) service plus [MongoDB Atlas](https://www.mongodb.com/cloud/atlas). Seed on this machine, copy that database with `npm run db:push`, then deploy from `render.yaml`. The public site serves the built UI and `/api/v1` together.
+
+The steps are in [docs/deployment.md](docs/deployment.md). Sign in as `doctor@clinix.local` / `Doctor123!` and open Ava Nguyen (MRN-1001). The waiting room matches the day you last seeded. Charts do not.
 
 ---
 
@@ -614,7 +621,7 @@ Insight needs the chart and must leave edits in one place. It logs in as `insigh
 - Automated tests around validation, status transitions, and API access
 - Webhooks or a change stream so Insight can follow chart updates
 - A FHIR R4 export bundle
-- A hosted demo with a production JWT secret and a locked CORS origin
+- A scheduled refresh so the hosted waiting room stays on the current clinic day without a manual re-seed
 
 ---
 
@@ -623,13 +630,14 @@ Insight needs the chart and must leave edits in one place. It logs in as `insigh
 - Billing, claims, and transmitting a prescription to a pharmacy are outside this product. The chart keeps a medication list and lab, imaging, and procedure orders.
 - There is no HIPAA or PHIPA certification claim. Core is a MongoDB API with a FHIR-oriented mapping, and it is separate from a live FHIR server.
 - There is no webhook or change-stream feed into Insight yet.
-- Automated tests and a hosted deployment are not in this repository.
+- Automated tests are not in this repository. The hosted demo is documented in [docs/deployment.md](docs/deployment.md). It is a synthetic clinic, not a certified record system.
 - Population reports are clinic operations views. They are separate from a provincial extract.
 
 ---
 
 ## Documentation
 
+- [Hosted demo](docs/deployment.md)
 - [Data model](docs/data-model.md)
 - [API](docs/api.md)
 - [RBAC](docs/rbac.md)

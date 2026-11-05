@@ -10,5 +10,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Seed runs through tsx, not the production bundle. It is excluded so a hosted build is not blocked by seed-only type errors.
+  "exclude": ["src/db/seed.ts", "src/db/seed"]
 }

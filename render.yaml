@@ -1,0 +1,21 @@
+# Render blueprint. One service serves the API and the built clinic UI.
+# Create a free MongoDB Atlas cluster first, seed locally, then npm run db:push.
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: clinix-core
+    runtime: node
+    plan: free
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: MONGODB_URI
+        sync: false

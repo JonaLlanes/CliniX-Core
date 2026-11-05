@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "seed": "tsx src/db/seed.ts",
+    "push-demo": "tsx src/db/push-demo.ts",
     "load-portfolio": "tsx src/db/load-powerbi.ts",
     "migrate:canadian": "tsx src/db/migrate-canadian-registration.ts"
   },

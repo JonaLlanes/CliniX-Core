@@ -15,8 +15,11 @@
     "dev:frontend": "npm run dev --workspace=frontend",
     "db:seed": "npm run seed --workspace=backend",
     "seed": "npm run db:seed",
+    "db:push": "npm run push-demo --workspace=backend",
     "load-portfolio": "npm run load-portfolio --workspace=backend",
-    "migrate:canadian": "npm run migrate:canadian --workspace=backend"
+    "migrate:canadian": "npm run migrate:canadian --workspace=backend",
+    "build": "npm run build --workspace=frontend && npm run build --workspace=backend",
+    "start": "npm run start --workspace=backend"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
